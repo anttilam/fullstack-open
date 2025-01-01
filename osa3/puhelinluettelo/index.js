@@ -1,17 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const cors = require('cors');
-
-app.use(express.json());
-app.use(morgan("tiny"));
-app.use(cors())
-
-morgan.token("olenToken", function (req, res) {
-    return JSON.stringify(req.body);
-});
-
-app.use(morgan(":method :url :status :response-time ms :olenToken"));
+const cors = require("cors");
 
 let persons = [
     {
@@ -35,6 +25,18 @@ let persons = [
         "id": "4",
     },
 ];
+
+app.use(express.static("dist")); //check folder 'dist' and serve contents.. i guess index.html
+
+app.use(express.json());
+app.use(morgan("tiny"));
+app.use(cors()); //allow all CORS
+
+morgan.token("olenToken", function (req, res) {
+    return JSON.stringify(req.body);
+});
+
+app.use(morgan(":method :url :status :response-time ms :olenToken"));
 
 console.log(morgan());
 
@@ -72,6 +74,29 @@ const generateId = () => {
         : 0;
     return String(maxId + 1);
 };
+
+app.put("/api/persons/:id", (request, response) => {
+    const id = request.params.id;
+    const body = request.body;
+
+    const foundPerson = persons.find((p) => p.id === id);
+    // console.log("foundPerson", foundPerson);
+
+    const updatedPerson = {
+        name: body.name,
+        number: body.number,
+        id: foundPerson.id,
+    };
+
+    if (updatedPerson) {
+        persons = persons.map((person) => person.id === id ? updatedPerson : person);
+        response.json(updatedPerson);
+    } else {
+        return response.status(400).json({
+            error: "Person not found",
+        });
+    }
+});
 
 app.post("/api/persons", (request, response) => {
     const body = request.body;
