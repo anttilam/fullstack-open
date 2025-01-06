@@ -1,12 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
-
+//const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cors = require("cors");
 const Person = require("./models/person");
-const person = require("./models/person");
 
 let persons = [
     {
@@ -37,7 +35,7 @@ app.use(express.json());
 app.use(morgan("tiny"));
 app.use(cors()); //allow all CORS
 
-morgan.token("olenToken", function (req, res) {
+morgan.token("olenToken", function (req) {
     return JSON.stringify(req.body);
 });
 
@@ -87,7 +85,7 @@ app.delete("/api/persons/:id", (request, response, next) => {
 
     // persons = persons.filter((person) => person.id !== id);
     // response.status(204).end();
-    Person.findByIdAndDelete(id).then((result) => {
+    Person.findByIdAndDelete(id).then(() => {
         response.status(204).end(); //204 no content
     }).catch((error) => next(error));
 });
