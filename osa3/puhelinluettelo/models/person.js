@@ -18,9 +18,28 @@ mongoose.connect(url)
 // `mongodb+srv://anttilamdev:${password}@cluster0.k4oay.mongodb.net/person?retryWrites=true&w=majority&appName=Cluster0`;
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        minlength: 3,
+        required: true,
+    },
+    number: {
+        type: String,
+        validate: {
+            validator: function(v) {
+              return /^(\d{2,3})-(\d{5,})$/.test(v);
+            },
+            message: props => `${props.value} is not a valid phone number!`
+          },
+          required: [true, 'User phone number required']
+    },
 });
+/*
+content: {
+    type: String,
+    minlength: 5,
+    required: true
+  },*/
 
 personSchema.set("toJSON", {
     transform: (document, returnedObject) => {
@@ -38,10 +57,7 @@ Koska oliot on luotu modelien konstruktorifunktiolla,
 niillä on kaikki modelien ominaisuudet eli joukko metodeja,
 joiden avulla olioita voidaan mm. tallettaa tietokantaan.
 */
-// const person = new Person({
-//     name: `${personName}`,
-//     number: `${personNumber}`,
-// });
+
 
 /*
 Moduulin ulos näkyvä osa määritellään asettamalla arvo muuttujalle module.exports.
